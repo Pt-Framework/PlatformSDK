@@ -1,4 +1,4 @@
-name: Build Pt Dependencies
+name: Build Platinum Dependencies
 on: [workflow_dispatch]
 
 jobs:
@@ -22,7 +22,9 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: 'vcpkg.json'
+          vcpkgGitCommitId: '3426db05b996481ca31d95fff3734cf23e0f51d5'
           runVcpkgInstall: true
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg' 
 
       - name: Create build directory
         shell: pwsh
