@@ -51,6 +51,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
+          name: "Pt Dependencies (latest)"
+          body: Provides libpng, freetype for various platforms
           files: ${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip
           prerelease: true
         env:
