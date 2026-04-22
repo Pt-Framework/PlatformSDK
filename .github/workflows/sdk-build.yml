@@ -1,4 +1,4 @@
-name: Build Platinum Dependencies
+name: Build Pt Dependencies
 on: [workflow_dispatch]
 
 jobs:
@@ -24,30 +24,23 @@ jobs:
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           vcpkgGitCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
-          runVcpkgInstall: true
           vcpkgDirectory: '${{ github.workspace }}/vcpkg' 
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          vcpkg install `
+            --triplet=${{ matrix.triplet }} `
+            --x-install-root="$env:VCPKG_INSTALLED_DIR"
 
       - name: Create build directory
         shell: pwsh
         run: New-Item -ItemType Directory -Force -Path build | Out-Null
 
-      - name: Debug install location
-        shell: pwsh
-        run: |
-          Write-Host "VCPKG_INSTALLED_DIR=$env:VCPKG_INSTALLED_DIR"
-          Write-Host "VCPKG_ROOT=$env:VCPKG_ROOT"
-          if (Test-Path "${{ github.workspace }}/vcpkg_installed") {
-            Write-Host "Found vcpkg_installed:"
-            Get-ChildItem "${{ github.workspace }}/vcpkg_installed" -Depth 1
-          } else {
-            Write-Host "vcpkg_installed NOT found at workspace root"
-            Get-ChildItem "${{ github.workspace }}" -Depth 1
-          }
-
       - name: Export artifacts
         shell: pwsh
         run: >
-          vcpkg export --zip 
+          vcpkg export --raw 
           --triplet=${{ matrix.triplet }} 
           --x-install-root="$env:VCPKG_INSTALLED_DIR" 
           --output-dir=./build 
