@@ -1,0 +1,44 @@
+name: Build Platinum Dependencies
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-2022
+            triplet: x64-windows
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.triplet }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup vcpkg tools
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: 'vcpkg.json'
+          runVcpkgInstall: true
+
+      - name: Create build directory
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force -Path build | Out-Null
+
+      - name: Export artifacts
+        shell: pwsh
+        run: >
+          vcpkg export --zip 
+          --triplet=${{ matrix.triplet }} 
+          --output-dir=./build 
+          --output=sdk-${{ matrix.triplet }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-${{ matrix.triplet }}
+          path: build/sdk-${{ matrix.triplet }}.zip
+          if-no-files-found: error
