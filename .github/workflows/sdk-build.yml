@@ -14,6 +14,7 @@ jobs:
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.triplet }}
+      VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
 
     steps:
       - uses: actions/checkout@v6
@@ -48,7 +49,7 @@ jobs:
         run: >
           vcpkg export --zip 
           --triplet=${{ matrix.triplet }} 
-          --x-install-root="${{ github.workspace }}/vcpkg_installed"
+          --x-install-root="$env:VCPKG_INSTALLED_DIR" 
           --output-dir=./build 
           --output=sdk-${{ matrix.triplet }}
 
