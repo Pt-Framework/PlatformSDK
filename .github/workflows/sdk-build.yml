@@ -60,7 +60,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "${{ env.DEPS_EXPORT_DIR }}" | Out-Null
-          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ env.DEPS_EXPORT_DIR }}/config.jam" -Encoding utf8 -NoNewline
+          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ github.workspace }}/config.jam" -Encoding utf8 -NoNewline
 
       - name: Release packages
         uses: softprops/action-gh-release@v3
@@ -68,8 +68,6 @@ jobs:
           tag_name: latest
           name: "Pt Dependencies (latest)"
           body: Provides libpng, freetype for various platforms
-          #files: ${{ env.DEPS_EXPORT_DIR }}/*
-          #files: "*.zip"
           files: |
             ${{ github.workspace }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip
             ${{ github.workspace }}/config.jam
