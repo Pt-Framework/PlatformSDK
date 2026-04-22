@@ -41,7 +41,7 @@ jobs:
       - name: Export packages
         shell: pwsh
         run: >
-          vcpkg export --zip
+          vcpkg export --raw
           --triplet=${{ matrix.triplet }}
           --x-install-root="${{ env.VCPKG_INSTALLED_DIR }}"
           --output-dir="${{ env.DEPS_EXPORT_DIR }}"
@@ -49,17 +49,25 @@ jobs:
 
       - name: Create version file
         shell: pwsh
+        #run: |
+        #  New-Item -ItemType Directory -Force -Path "${{ env.DEPS_EXPORT_DIR }}" | Out-Null
+        #  "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ env.DEPS_EXPORT_DIR }}/config.jam" -Encoding utf8 -NoNewline
         run: |
-          New-Item -ItemType Directory -Force -Path "${{ env.DEPS_EXPORT_DIR }}" | Out-Null
-          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ env.DEPS_EXPORT_DIR }}/config.jam" -Encoding utf8 -NoNewline
-          
+          $ExportPath = "${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}"
+          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "$ExportPath/config.jam" -Encoding utf8
+          Push-Location $ExportPath
+          Compress-Archive -Path "*" -DestinationPath "../../${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}-slim.zip"
+          Pop-Location
+
       - name: Release packages
         uses: softprops/action-gh-release@v3
         with:
           tag_name: latest
           name: "Pt Dependencies (latest)"
           body: Provides libpng, freetype for various platforms
-          files: ${{ env.DEPS_EXPORT_DIR }}/*
+          #files: ${{ env.DEPS_EXPORT_DIR }}/*
+          files: "*.zip"
+          overwrite: true
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
