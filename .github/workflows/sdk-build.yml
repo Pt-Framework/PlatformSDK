@@ -35,6 +35,7 @@ jobs:
         run: >
           vcpkg export --zip 
           --triplet=${{ matrix.triplet }} 
+          --x-install-root="${{ github.workspace }}/vcpkg_installed"
           --output-dir=./build 
           --output=sdk-${{ matrix.triplet }}
 
