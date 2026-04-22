@@ -67,7 +67,6 @@ jobs:
           body: Provides libpng, freetype for various platforms
           #files: ${{ env.DEPS_EXPORT_DIR }}/*
           files: "*.zip"
-          overwrite: true
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
