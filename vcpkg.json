@@ -1,0 +1,10 @@
+{
+  "name": "Pt-deps",
+  "version": "0.0.1",
+  "dependencies": [
+    "libpng",
+    "openssl",
+    "freetype"
+  ],
+  "builtin-baseline": "3426db05b996481ca31d95fff3734cf23e0f51d5"
+}
