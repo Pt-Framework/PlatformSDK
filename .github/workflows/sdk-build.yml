@@ -46,18 +46,21 @@ jobs:
           --x-install-root="${{ env.VCPKG_INSTALLED_DIR }}"
           --output-dir="${{ env.DEPS_EXPORT_DIR }}"
           --output=${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}
-
+      
+      - name: Create Slim SDK Zip
+        shell: pwsh
+        run: |
+          $Output = "${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}"
+          $Content = "$Output/installed/${{ matrix.triplet }}"
+          Push-Location $Content
+          Compress-Archive -Path "*" -DestinationPath "${{ github.workspace }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip"
+          Pop-Location
+      
       - name: Create version file
         shell: pwsh
-        #run: |
-        #  New-Item -ItemType Directory -Force -Path "${{ env.DEPS_EXPORT_DIR }}" | Out-Null
-        #  "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ env.DEPS_EXPORT_DIR }}/config.jam" -Encoding utf8 -NoNewline
         run: |
-          $ExportPath = "${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}"
-          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "$ExportPath/config.jam" -Encoding utf8
-          Push-Location $ExportPath
-          Compress-Archive -Path "*" -DestinationPath "../../${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}-slim.zip"
-          Pop-Location
+          New-Item -ItemType Directory -Force -Path "${{ env.DEPS_EXPORT_DIR }}" | Out-Null
+          "DEPS_VERSION = ${{ github.run_number }} ;" | Out-File -FilePath "${{ env.DEPS_EXPORT_DIR }}/config.jam" -Encoding utf8 -NoNewline
 
       - name: Release packages
         uses: softprops/action-gh-release@v3
@@ -66,7 +69,10 @@ jobs:
           name: "Pt Dependencies (latest)"
           body: Provides libpng, freetype for various platforms
           #files: ${{ env.DEPS_EXPORT_DIR }}/*
-          files: "*.zip"
+          #files: "*.zip"
+          files: |
+            ${{ github.workspace }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip
+            ${{ github.workspace }}/config.jam
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
