@@ -23,6 +23,7 @@ jobs:
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           vcpkgGitCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
+          runVcpkgInstall: true
           vcpkgDirectory: '${{ github.workspace }}/vcpkg' 
 
       - name: Create build directory
