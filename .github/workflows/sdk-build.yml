@@ -11,11 +11,16 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    permissions:
+      contents: write
+
     env:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.triplet }}
       VCPKG_INSTALLED_DIR: ${{ github.workspace }}/vcpkg_installed
-
+      DEPS_EXPORT_DIR: ${{ github.workspace }}/exported
+      DEPS_BASENAME: pt-deps
+    
     steps:
       - uses: actions/checkout@v6
 
@@ -26,29 +31,27 @@ jobs:
           vcpkgGitCommitId: 'c3867e714dd3a51c272826eea77267876517ed99'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg' 
 
-      - name: Install dependencies
-        shell: pwsh
-        run: |
-          vcpkg install `
-            --triplet=${{ matrix.triplet }} `
-            --x-install-root="$env:VCPKG_INSTALLED_DIR"
-
-      - name: Create build directory
-        shell: pwsh
-        run: New-Item -ItemType Directory -Force -Path build | Out-Null
-
-      - name: Export artifacts
+      - name: Install packages
         shell: pwsh
         run: >
-          vcpkg export --raw 
-          --triplet=${{ matrix.triplet }} 
-          --x-install-root="$env:VCPKG_INSTALLED_DIR" 
-          --output-dir=./build 
-          --output=sdk-${{ matrix.triplet }}
+          vcpkg install
+          --triplet=${{ matrix.triplet }}
+          --x-install-root="${{ env.VCPKG_INSTALLED_DIR }}"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Export packages
+        shell: pwsh
+        run: >
+          vcpkg export --zip
+          --triplet=${{ matrix.triplet }}
+          --x-install-root="${{ env.VCPKG_INSTALLED_DIR }}"
+          --output-dir="${{ env.DEPS_EXPORT_DIR }}"
+          --output=${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}
+
+      - name: Release packages
+        uses: softprops/action-gh-release@v2
         with:
-          name: sdk-${{ matrix.triplet }}
-          path: build/sdk-${{ matrix.triplet }}
-          if-no-files-found: error
+          tag_name: latest
+          files: ${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
