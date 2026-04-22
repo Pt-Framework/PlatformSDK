@@ -59,7 +59,7 @@ jobs:
           tag_name: latest
           name: "Pt Dependencies (latest)"
           body: Provides libpng, freetype for various platforms
-          files: ${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip
+          files: ${{ env.DEPS_EXPORT_DIR }}/*
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
