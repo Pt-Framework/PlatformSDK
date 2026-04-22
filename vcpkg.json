@@ -1,5 +1,5 @@
 {
-  "name": "Pt-deps",
+  "name": "pt-deps",
   "version": "0.0.1",
   "dependencies": [
     "libpng",
