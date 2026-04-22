@@ -50,10 +50,9 @@ jobs:
       - name: Create Slim SDK Zip
         shell: pwsh
         run: |
-          $Output = "${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}"
-          $Content = "$Output/installed/${{ matrix.triplet }}"
+          $Content = "${{ env.DEPS_EXPORT_DIR }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}/installed"
           Push-Location $Content
-          Compress-Archive -Path "*" -DestinationPath "${{ github.workspace }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip"
+          Compress-Archive -Path "${{ matrix.triplet }}" -DestinationPath "${{ github.workspace }}/${{ env.DEPS_BASENAME }}-${{ matrix.triplet }}.zip"
           Pop-Location
       
       - name: Create version file
