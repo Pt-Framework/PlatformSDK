@@ -1,4 +1,4 @@
-name: Build Platinum Dependencies
+name: Build Pt Dependencies
 on: [workflow_dispatch]
 
 jobs:
